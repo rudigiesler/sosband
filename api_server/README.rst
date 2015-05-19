@@ -7,8 +7,6 @@ To run a development server:
       - psql -U postgres -c "CREATE ROLE sosband WITH PASSWORD 'sosband' LOGIN"
       - psql -U postgres -c "CREATE DATABASE sosband"
       - ./manage.sh db upgrade
+      - ./manage.sh create_priorities
   - Run the process
-      - supervisord -c supervisor.conf
-
-To control the server:
-  - supervisorctl -c supervisor.conf
+      - ./manage.sh runserver
