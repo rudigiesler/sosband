@@ -29,7 +29,11 @@ def emergency_numbers():
         else:
             ret['archived'] = False
         return ret
-    archived = request.args.get('archived', False)
+    archived = request.args.get('archived', 'false')
+    if archived.upper() == 'TRUE':
+        archived = True
+    else:
+        archived = False
     numbers = EmergencyNumbers.query.filter_by(archived=archived)
     numbers = [serialize(n) for n in numbers]
     return json.dumps(numbers)
