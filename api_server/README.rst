@@ -1,3 +1,6 @@
+REST API Server
+--------------
+
 The backend server that collects the GPS data and provides a REST API to access it
 
 To run a development server:
