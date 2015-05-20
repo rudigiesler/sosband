@@ -38,3 +38,36 @@ class EmergencyNumbers(db.Model):
 
     def __repr__(self):
         return '<%s>' % (self.number)
+
+class GPSPoints(db.Model):
+    # Note: This model is designed for storing GPRMC commands, as that's all we
+    # really care about.
+    __tablename__ = 'gps_points'
+
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime)
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
+    speed = db.Column(db.Float)
+    course = db.Column(db.Float)
+    mode = db.Column(
+        db.Enum('A', 'M', 'D', 'S', 'E', 'N', name='mode_indicator'))
+    archived = db.Column(db.Boolean)
+    archived_timestamp = db.Column(db.DateTime)
+
+    def __init__(self, timestamp, latitude, longitude, speed, course, mode):
+        self.timestamp = timestamp
+        self.latitude = latitude
+        self.longitude = longitude
+        self.speed = speed
+        self.course = course
+        self.mode = mode
+        self.archived = False
+
+    def archive(self):
+        self.archived_timestamp = datetime.now()
+        self.archived = True
+
+    def __repr__(self):
+        return '<Lat: %f, Long: %s>' % (self.latitude, self.longitude)
+
