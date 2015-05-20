@@ -38,3 +38,19 @@ def emergency_numbers():
     numbers = [serialize(n) for n in numbers]
     return json.dumps(numbers)
 
+@app.route('/arduino/numbers')
+def arduino_numbers():
+    """ A special endpoint for the Arduino designed to be easy to process
+        on the Arduino """
+    priorities = (NumberPriorities.query
+        .outerjoin(EmergencyNumbers)
+        .order_by(NumberPriorities.priority.asc())
+        )
+    numbers = []
+    for n in priorities:
+        if len(n.numbers) > 0:
+            numbers.append(n.numbers[0].number)
+        else:
+            numbers.append('')
+    print '\n'.join(numbers)
+    return '\n'.join(numbers)
