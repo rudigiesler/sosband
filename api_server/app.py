@@ -20,7 +20,6 @@ def serialize_number(number):
     ret = {}
     if not number:
         return ret
-    ret['id'] = number.id
     ret['priority'] = number.priority
     ret['number'] = number.number
     ret['created_timestamp'] = number.created_timestamp.isoformat()
@@ -65,7 +64,20 @@ def get_number_for_priority(priority):
 def set_number_for_priority(priority):
     """ Archives the old emergency number, and creates a new emergency number
         with the priority `priority`. """
-    pass
+    old_numbers = (
+        EmergencyNumbers.query.filter(db.and_(
+            EmergencyNumbers.archived == False,
+            EmergencyNumbers.priority == priority))
+        )
+    for number in old_numbers:
+        number.archive()
+        db.session.add(number)
+    print request.get_json()
+    new_num = EmergencyNumbers(priority, request.get_json()['number'])
+    db.session.add(new_num)
+    db.session.commit()
+    return json.dumps(serialize_number(new_num))
+
 
 @app.route('/arduino/numbers',  methods=['GET'])
 def arduino_numbers():
