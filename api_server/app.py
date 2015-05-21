@@ -15,27 +15,32 @@ from models import NumberPriorities, EmergencyNumbers
 def hello():
     return "Hello World!"
 
+def serialize_number(number):
+    " Serialize the given number into a dict "
+    ret = {}
+    if not number:
+        return ret
+    ret['id'] = number.id
+    ret['priority'] = number.priority
+    ret['number'] = number.number
+    ret['created_timestamp'] = number.created_timestamp.isoformat()
+    if number.archived:
+        ret['archived'] = True
+        ret['archived_timestamp'] = number.archived_timestamp.isoformat()
+    else:
+        ret['archived'] = False
+    return ret
+
+
 @app.route('/emergency_numbers', methods=['GET'])
 def emergency_numbers():
-    def serialize(number):
-        ret = {}
-        ret['id'] = number.id
-        ret['priority'] = number.priority
-        ret['number'] = number.number
-        ret['created_timestamp'] = number.created_timestamp.isoformat()
-        if number.archived:
-            ret['archived'] = True
-            ret['archived_timestamp'] = number.archived_timestamp.isoformat()
-        else:
-            ret['archived'] = False
-        return ret
     archived = request.args.get('archived', 'false')
     if archived.upper() == 'TRUE':
         archived = True
     else:
         archived = False
     numbers = EmergencyNumbers.query.filter_by(archived=archived)
-    numbers = [serialize(n) for n in numbers]
+    numbers = map(serialize_number, numbers)
     return json.dumps(numbers)
 
 @app.route('/priorities/<int:priority>', methods=['GET', 'POST'])
@@ -48,7 +53,13 @@ def priorities_resource(priority):
 
 def get_number_for_priority(priority):
     """ Returns the current emergency number for the priority """
-    pass
+    number = (
+        EmergencyNumbers.query.filter(db.and_(
+            EmergencyNumbers.archived == False,
+            EmergencyNumbers.priority == priority))
+        .first()
+        )
+    return json.dumps(serialize_number(number))
 
 
 def set_number_for_priority(priority):
