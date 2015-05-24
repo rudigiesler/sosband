@@ -13,11 +13,9 @@ setup(
     scripts=[],
     install_requires=[
         'Flask',
-        'gunicorn',
-        'supervisor',
-        'psycopg2cffi',
         'Flask-SQLAlchemy',
         'Flask-Migrate',
+        'psycopg2cffi',
         'pynmea2',
     ],
     classifiers=[

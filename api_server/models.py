@@ -1,5 +1,6 @@
 from app import db
 from datetime import datetime
+import pynmea2
 
 
 class NumberPriorities(db.Model):
@@ -50,8 +51,6 @@ class GPSPoints(db.Model):
     longitude = db.Column(db.Float)
     speed = db.Column(db.Float)
     course = db.Column(db.Float)
-    mode = db.Column(
-        db.Enum('A', 'M', 'D', 'S', 'E', 'N', name='mode_indicator'))
     archived = db.Column(db.Boolean)
     archived_timestamp = db.Column(db.DateTime)
 
@@ -63,6 +62,15 @@ class GPSPoints(db.Model):
         self.course = course
         self.mode = mode
         self.archived = False
+
+    @classmethod
+    def from_string(cls, string):
+        gps = pynmea2.parse(string)
+        if gps.sentence_type != 'RMC' or gps.data_validity != 'A':
+            return
+        return cls(
+            gps.datetime, gps.latitude, gps.longitude, gps.spd_over_grnd,
+            gps.true_course)
 
     def archive(self):
         self.archived_timestamp = datetime.now()
