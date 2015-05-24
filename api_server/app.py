@@ -20,10 +20,11 @@ def serialize_number(number):
     ret = {}
     if not number:
         return ret
-    ret['priority'] = number.priority
-    ret['number'] = number.number
-    ret['created_timestamp'] = number.created_timestamp.isoformat()
-    if number.archived:
+    ret['priority'] = number.get('priority')
+    ret['number'] = number.get('number')
+    timestamp = number.get('created_timestamp')
+    ret['created_timestamp'] = timestamp and timestamp.isoformat()
+    if number.get('archived'):
         ret['archived'] = True
         ret['archived_timestamp'] = number.archived_timestamp.isoformat()
     else:
@@ -31,14 +32,21 @@ def serialize_number(number):
     return ret
 
 
-@app.route('/emergency_numbers', methods=['GET'])
+@app.route('/priorities', methods=['GET'])
 def emergency_numbers():
     archived = request.args.get('archived', 'false')
     if archived.upper() == 'TRUE':
         archived = True
     else:
         archived = False
-    numbers = EmergencyNumbers.query.filter_by(archived=archived)
+    numbers = (
+        db.session.query(NumberPriorities, EmergencyNumbers)
+        .outerjoin(EmergencyNumbers, db.and_(
+            EmergencyNumbers.priority == NumberPriorities.priority,
+            EmergencyNumbers.archived == archived))
+        .order_by(NumberPriorities.priority)
+        )
+    numbers = [en or {'priority': np.priority} for np, en in numbers]
     numbers = map(serialize_number, numbers)
     return json.dumps(numbers)
 
