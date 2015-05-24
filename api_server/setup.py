@@ -18,6 +18,7 @@ setup(
         'psycopg2cffi',
         'Flask-SQLAlchemy',
         'Flask-Migrate',
+        'pynmea2',
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
