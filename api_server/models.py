@@ -54,13 +54,12 @@ class GPSPoints(db.Model):
     archived = db.Column(db.Boolean)
     archived_timestamp = db.Column(db.DateTime)
 
-    def __init__(self, timestamp, latitude, longitude, speed, course, mode):
+    def __init__(self, timestamp, latitude, longitude, speed, course):
         self.timestamp = timestamp
         self.latitude = latitude
         self.longitude = longitude
         self.speed = speed
         self.course = course
-        self.mode = mode
         self.archived = False
 
     @classmethod
