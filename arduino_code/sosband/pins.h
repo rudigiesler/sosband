@@ -7,3 +7,5 @@
 #define GPS_RX 9
 #define GPS_PWR 6
 #define LED 13
+#define BUTTON 14
+#define INTERRUPT 0  // Dependant on BUTTON
