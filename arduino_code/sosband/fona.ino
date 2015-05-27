@@ -1,8 +1,8 @@
-#define NUMBERS_URL "http://1.2.3.4/arduino/numbers"
-#define GPS_DATA_URL "http://1.2.3.4/arduino/gps"
-#define APN "APN"
-#define APN_USERNAME "username"
-#define APN_PASSWORD "password"
+#define NUMBERS_URL "46.101.35.75/api/arduino/numbers\0"
+#define GPS_DATA_URL "46.101.35.75/api/arduino/gps\0"
+#define APN "internet"
+#define APN_USERNAME "guest"
+#define APN_PASSWORD ""
 
 #include "pins.h"
 #include <SoftwareSerial.h>
@@ -22,9 +22,12 @@ void fona_setup() {
     digitalWrite(FONA_KEY, HIGH);
   }
   fonaSS.begin(4800);
-  fona.setGPRSNetworkSettings(F(APN), F(APN_USERNAME), F(APN_PASSWORD)); 
-  fona.setHTTPSRedirect(true);
+  fona.begin(fonaSS);
+  fona.setGPRSNetworkSettings(F(APN), F(APN_USERNAME), F(APN_PASSWORD));
   fona.enableGPRS(true);
+  fona.setVolume(100);
+  fona.setAudio(FONA_EXTAUDIO);
+  fona.setMicVolume(FONA_EXTAUDIO, 10);
 }
 
 void fona_shutdown() {
@@ -36,38 +39,41 @@ void fona_shutdown() {
   }
 }
 
-void get_e_numbers(uint8_t number1[], uint8_t number2[]) {
+void get_e_numbers(char number1[], char number2[]) {
   /* Gets emergency numbers from the HTTP API
      Required: number1 and number2 to be large enough
      for the number */
 
   uint16_t statuscode, len, i = 0;
-  uint8_t c;
+
   fona.HTTP_GET_start(NUMBERS_URL, &statuscode, &len);
   
   // Get first number
+  char c;
   do {
+    if(!fona.available()){continue;}
     c = fona.read();
     number1[i++] = c;
     len--;
   } while (c != '\n' && len > 0);
-  number1[i - 2] = '\0';
+  number1[i - 1] = '\0';
   
   // Get second number
   i = 0;
   while (len > 0) {
+    if(!fona.available()){continue;}
     c = fona.read();
     number2[i++] = c;
     len--;
   }
-  number2[i - 2] = '\0';
+  number2[i] = '\0';
 }
 
-void post_GPS_data(uint8_t data[]) {
+void post_GPS_data(char data[]) {
   /* POSTS a string representing GPS data to the HTTP API
      String should be ASCII null terminated */
   uint16_t statuscode, len;
-  fona.HTTP_POST_start(GPS_DATA_URL, F("text/plain"), data, strlen((const char *) data), &statuscode, &len);
+  fona.HTTP_POST_start(GPS_DATA_URL, F("text/plain"), (uint8_t *)data, strlen(data), &statuscode, &len);
   while (len > 0 && fona.available()) {
     // Throw away response data
     uint8_t c;
@@ -76,8 +82,8 @@ void post_GPS_data(uint8_t data[]) {
   }
 }
 
-void start_call(uint8_t number[]) {
-  fona.callPhone((char *)number);
+void start_call(char number[]) {
+  fona.callPhone(number);
 }
 
 void end_call() {
