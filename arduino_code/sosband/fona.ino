@@ -16,18 +16,24 @@ void fona_setup() {
   pinMode(FONA_PS, INPUT);
   pinMode(FONA_KEY, OUTPUT);
   digitalWrite(FONA_KEY, HIGH);
-  if(digitalRead(FONA_PS) == LOW) {
+  while(digitalRead(FONA_PS) == LOW) {
     digitalWrite(FONA_KEY, LOW);
     delay(2500);
     digitalWrite(FONA_KEY, HIGH);
+    delay(500);
   }
   fonaSS.begin(4800);
   fona.begin(fonaSS);
+  
   fona.setGPRSNetworkSettings(F(APN), F(APN_USERNAME), F(APN_PASSWORD));
-  fona.enableGPRS(true);
-  fona.setVolume(100);
-  fona.setAudio(FONA_EXTAUDIO);
-  fona.setMicVolume(FONA_EXTAUDIO, 10);
+  
+  while(!fona.enableGPRS(true)) {
+    fona.enableGPRS(false);
+  }
+  
+  while(!fona.setVolume(100));
+  while(!fona.setAudio(FONA_EXTAUDIO));
+  while(!fona.setMicVolume(FONA_EXTAUDIO, 10));
 }
 
 void fona_shutdown() {
@@ -83,6 +89,7 @@ void post_GPS_data(char data[]) {
 }
 
 void start_call(char number[]) {
+  
   fona.callPhone(number);
 }
 

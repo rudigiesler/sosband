@@ -20,7 +20,7 @@ void wakeup() {
 
 void setup() {
   Serial.begin(115200);
-  while(!Serial) {}
+  while(!Serial);
   Serial.println(F("Serial Connected"));
   pinMode(LED, OUTPUT);
   pinMode(BUTTON, INPUT);
@@ -28,7 +28,7 @@ void setup() {
   digitalWrite(LED, HIGH);
   fona_setup();
   get_e_numbers(e_number1, e_number2);
-  //gps_setup();
+  gps_setup();
   digitalWrite(LED, LOW);
   delay(500);
   digitalWrite(LED, HIGH);
@@ -50,6 +50,7 @@ void turn_off() {
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
   sleep_enable();
   attachInterrupt(INTERRUPT, wakeup, LOW);
+  delay(500);
   sleep_mode();
   
   //return from interrupt
@@ -67,6 +68,8 @@ void loop() {
   // Get and send GPS data
   char * gps_data = read_gps_char();
   if(gps_data && is_valid_gps_command(gps_data)) {
+    Serial.println('Submitting');
+    Serial.println(gps_data);
     post_GPS_data(gps_data);
   }
   
@@ -98,6 +101,8 @@ void loop() {
   // Test for power off
   if(reading == LOW && duration > TURNOFF_TIME) {
     button_down_time = millis();
+    last_button_state = HIGH;
+    reading = HIGH;
     turn_off();
   }
   

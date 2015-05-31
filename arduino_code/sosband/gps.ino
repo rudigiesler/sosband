@@ -55,5 +55,6 @@ char is_valid_gps_command(char command[]) {
   // This doesn't actually check for all valid GPS commands,
   // it just checks that it's the one command we're interested in,
   // and that the data is valid.
+  Serial.print(command);
   return is_gps_verb(command, "$GPRMC") && is_valid_gprmc(command);
 }
