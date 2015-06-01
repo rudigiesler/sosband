@@ -52,6 +52,7 @@ void turn_off() {
   attachInterrupt(INTERRUPT, wakeup, LOW);
   delay(500);
   sleep_mode();
+  sleep_cpu();
   
   //return from interrupt
   sleep_disable();
