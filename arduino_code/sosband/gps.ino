@@ -19,6 +19,15 @@ void gps_shutdown() {
   gpsSS.end();
 }
 
+void gps_pause_serial() {
+  gpsSS.flush();
+  gpsSS.end();
+}
+
+void gps_resume_serial() {
+  gpsSS.begin(9600);
+}
+
 char * read_gps_char() {
   /* Reads a single char from the serial port (if available) and places
      it on the buffer. If it is the end of a command, returns the address
@@ -57,6 +66,5 @@ char is_valid_gps_command(char command[]) {
   // This doesn't actually check for all valid GPS commands,
   // it just checks that it's the one command we're interested in,
   // and that the data is valid.
-  Serial.print(command);
   return is_gps_verb(command, "$GPRMC") && is_valid_gprmc(command);
 }

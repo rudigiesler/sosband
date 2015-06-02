@@ -16,3 +16,5 @@
 // Pro mini: int0=2, int1=3
 #define BUTTON 1
 #define INTERRUPT 3  // Dependant on BUTTON
+
+#define ADAFRUIT_FONA_DEBUG 1

@@ -12,9 +12,40 @@ uint16_t button_down_time = 0, button_up_time = 0;
 uint8_t last_button_state = HIGH;
 uint8_t call_in_progress = false;
 
+char reading;
+char power_off = false;
+uint16_t duration;
+
 
 void wakeup() {
   // Wake up
+}
+
+void button_change() {
+  reading = digitalRead(BUTTON);
+  
+  // Test for button pressed
+  duration = millis() - button_up_time;
+  if(reading == LOW && last_button_state == HIGH && duration > DEBOUNCE_TIME) {
+    button_down_time = millis();
+  }
+  
+  duration = millis() - button_down_time;
+  // Test for button released
+  if(reading == HIGH && last_button_state == LOW && duration > DEBOUNCE_TIME) {
+    button_up_time = millis();
+  }
+}
+  
+
+void switch_to_gps() {
+    pause_fona_serial();
+    gps_resume_serial();
+}
+
+void switch_to_fona() {
+  gps_pause_serial();
+  resume_fona_serial();
 }
 
 
@@ -32,6 +63,7 @@ void setup() {
   digitalWrite(LED, LOW);
   delay(500);
   digitalWrite(LED, HIGH);
+  attachInterrupt(INTERRUPT, button_change, CHANGE);
   Serial.println("Setup complete");
 }
 
@@ -65,23 +97,11 @@ void turn_off() {
 void loop() {
   // Get and send GPS data
   char * gps_data = read_gps_char();
-  if(gps_data && is_valid_gps_command(gps_data)) {
-    Serial.println("Submitting");
-    Serial.println(gps_data);
+  if(!call_in_progress && gps_data && is_valid_gps_command(gps_data)) {
     post_GPS_data(gps_data);
   }
   
-  // Check button
-  uint8_t reading = digitalRead(BUTTON);
-  uint16_t duration = millis() - button_up_time;
-  // Test for button pressed
-  if(reading == LOW && last_button_state == HIGH && duration > DEBOUNCE_TIME) {
-   button_down_time = millis();
-  }
-  // Test for button release
-  duration = millis() - button_down_time;
   if(reading == HIGH && last_button_state == LOW && duration > DEBOUNCE_TIME) {
-    button_up_time = millis();
     duration = button_up_time - button_down_time;
     if (call_in_progress) {
       call_in_progress = false;
@@ -96,14 +116,16 @@ void loop() {
       start_call(e_number2);
     }
   }
-  // Test for power off
+  
+  duration = millis() - button_down_time;
+    // Test for power off
   if(reading == LOW && duration > TURNOFF_TIME) {
     button_down_time = millis();
     last_button_state = HIGH;
     reading = HIGH;
     turn_off();
   }
-  
+
   last_button_state = reading;
  
 }

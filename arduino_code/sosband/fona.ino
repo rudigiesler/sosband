@@ -13,6 +13,7 @@ Adafruit_FONA fona = Adafruit_FONA(FONA_RST);
 
 void fona_setup() {
   /* Performs initial setup for the FONA */
+  switch_to_fona();
   pinMode(FONA_PS, INPUT);
   pinMode(FONA_KEY, OUTPUT);
   digitalWrite(FONA_KEY, HIGH);
@@ -34,6 +35,16 @@ void fona_setup() {
   while(!fona.setVolume(100));
   while(!fona.setAudio(FONA_EXTAUDIO));
   while(!fona.setMicVolume(FONA_EXTAUDIO, 10));
+  switch_to_gps();
+}
+
+void pause_fona_serial() {
+  fonaSS.flush();
+  fonaSS.end();
+}
+
+void resume_fona_serial() {
+  fonaSS.begin(4800);
 }
 
 void fona_shutdown() {
@@ -54,6 +65,7 @@ void get_e_numbers(char number1[], char number2[]) {
 
   uint16_t statuscode, len, i = 0;
 
+  switch_to_fona();
   fona.HTTP_GET_start(NUMBERS_URL, &statuscode, &len);
 
   // Get first number
@@ -76,20 +88,16 @@ void get_e_numbers(char number1[], char number2[]) {
   }
   number2[i] = '\0';
   fona.HTTP_GET_end();
-  Serial.println("Got numbers");
+  switch_to_gps();
 }
 
 void post_GPS_data(char data[]) {
   /* POSTS a string representing GPS data to the HTTP API
      String should be ASCII null terminated */
   uint16_t statuscode, len;
+  switch_to_fona();
   
-  if(fona.HTTP_POST_start(GPS_DATA_URL, F("text/plain"), (uint8_t *) data, strlen(data), &statuscode, &len)) {
-    Serial.print("Send successful");
-  } else {
-    Serial.println("Send unsuccessful");
-    return;
-  }
+  fona.HTTP_POST_start(GPS_DATA_URL, F("text/plain"), (uint8_t *) data, strlen(data), &statuscode, &len);
   while (len > 0) {
     while(fona.available()) {
       char c = fona.read();
@@ -98,13 +106,17 @@ void post_GPS_data(char data[]) {
     }
   }
   fona.HTTP_POST_end();
+  switch_to_gps();
 }
 
 void start_call(char number[]) {
-  
+  switch_to_fona();
   fona.callPhone(number);
+  switch_to_gps();
 }
 
 void end_call() {
+  switch_to_fona();
   fona.hangUp();
+  switch_to_gps();
 }
