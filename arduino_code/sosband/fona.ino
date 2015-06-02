@@ -43,6 +43,8 @@ void fona_shutdown() {
     delay(2500);
     digitalWrite(FONA_KEY, HIGH);
   }
+  fonaSS.flush();
+  fonaSS.end();
 }
 
 void get_e_numbers(char number1[], char number2[]) {
@@ -53,7 +55,7 @@ void get_e_numbers(char number1[], char number2[]) {
   uint16_t statuscode, len, i = 0;
 
   fona.HTTP_GET_start(NUMBERS_URL, &statuscode, &len);
-  
+
   // Get first number
   char c;
   do {
@@ -73,19 +75,29 @@ void get_e_numbers(char number1[], char number2[]) {
     len--;
   }
   number2[i] = '\0';
+  fona.HTTP_GET_end();
+  Serial.println("Got numbers");
 }
 
 void post_GPS_data(char data[]) {
   /* POSTS a string representing GPS data to the HTTP API
      String should be ASCII null terminated */
   uint16_t statuscode, len;
-  fona.HTTP_POST_start(GPS_DATA_URL, F("text/plain"), (uint8_t *)data, strlen(data), &statuscode, &len);
-  while (len > 0 && fona.available()) {
-    // Throw away response data
-    uint8_t c;
-    c = fona.read();
-    len--;
+  
+  if(fona.HTTP_POST_start(GPS_DATA_URL, F("text/plain"), (uint8_t *) data, strlen(data), &statuscode, &len)) {
+    Serial.print("Send successful");
+  } else {
+    Serial.println("Send unsuccessful");
+    return;
   }
+  while (len > 0) {
+    while(fona.available()) {
+      char c = fona.read();
+      len--;
+      if(!len) break;
+    }
+  }
+  fona.HTTP_POST_end();
 }
 
 void start_call(char number[]) {

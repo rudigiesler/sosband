@@ -33,10 +33,6 @@ void setup() {
   delay(500);
   digitalWrite(LED, HIGH);
   Serial.println("Setup complete");
-  // call test
-  //start_call((uint8_t*) &"0741942213");
-  //delay(10000);
-  //end_call();
 }
 
 void turn_off() {
@@ -47,12 +43,13 @@ void turn_off() {
   gps_shutdown();
   digitalWrite(LED, LOW);
   
-  set_sleep_mode(SLEEP_MODE_PWR_DOWN);
   sleep_enable();
   attachInterrupt(INTERRUPT, wakeup, LOW);
-  delay(500);
-  sleep_mode();
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+  Serial.flush();
+  Serial.end();
   sleep_cpu();
+  sleep_mode();
   
   //return from interrupt
   sleep_disable();
@@ -69,7 +66,7 @@ void loop() {
   // Get and send GPS data
   char * gps_data = read_gps_char();
   if(gps_data && is_valid_gps_command(gps_data)) {
-    Serial.println('Submitting');
+    Serial.println("Submitting");
     Serial.println(gps_data);
     post_GPS_data(gps_data);
   }

@@ -15,6 +15,8 @@ void gps_setup() {
 void gps_shutdown() {
   /* Puts the GPS into low power mode for shutting down */
   digitalWrite(GPS_PWR, LOW);
+  gpsSS.flush();
+  gpsSS.end();
 }
 
 char * read_gps_char() {
