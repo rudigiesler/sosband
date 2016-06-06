@@ -65,7 +65,7 @@ class GPSPoints(db.Model):
     @classmethod
     def from_string(cls, string):
         gps = pynmea2.parse(string)
-        if gps.sentence_type != 'RMC' or gps.data_validity != 'A':
+        if gps.sentence_type != 'RMC' or gps.status != 'A':
             return
         return cls(
             gps.datetime, gps.latitude, gps.longitude, gps.spd_over_grnd,

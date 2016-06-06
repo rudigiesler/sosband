@@ -126,7 +126,7 @@ def get_gps_points():
         )
     points = map(serialize_point, points)
     return json.dumps(points)
-    
+
 def create_gps_point():
     data = request.get_json()
     if data.get('nmea_string'):
@@ -164,4 +164,3 @@ def arduino_gps_data():
     db.session.add(point)
     db.session.commit()
     return ""
-    
