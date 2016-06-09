@@ -1,7 +1,7 @@
-#define NUMBERS_URL "46.101.35.75/api/arduino/numbers\0"
-#define GPS_DATA_URL "46.101.35.75/api/arduino/gps\0"
+#define NUMBERS_URL "146.185.131.61/api/arduino/numbers\0"
+#define GPS_DATA_URL "146.185.131.61/api/arduino/gps\0"
 #define APN "internet"
-#define APN_USERNAME "guest"
+#define APN_USERNAME ""
 #define APN_PASSWORD ""
 
 #include "pins.h"
@@ -13,6 +13,9 @@ Adafruit_FONA fona = Adafruit_FONA(FONA_RST);
 
 void fona_setup() {
   /* Performs initial setup for the FONA */
+  pinMode(FONA_VIO, OUTPUT);
+  digitalWrite(FONA_VIO, HIGH);
+  Serial.println("Switch to fona ss");
   switch_to_fona();
   pinMode(FONA_PS, INPUT);
   pinMode(FONA_KEY, OUTPUT);
@@ -20,18 +23,13 @@ void fona_setup() {
   while(digitalRead(FONA_PS) == LOW) {
     digitalWrite(FONA_KEY, LOW);
     delay(2500);
-    digitalWrite(FONA_KEY, HIGH);
-    delay(500);
   }
   fonaSS.begin(4800);
   fona.begin(fonaSS);
-  
   fona.setGPRSNetworkSettings(F(APN), F(APN_USERNAME), F(APN_PASSWORD));
-  
   while(!fona.enableGPRS(true)) {
     fona.enableGPRS(false);
   }
-  
   while(!fona.setVolume(100));
   while(!fona.setAudio(FONA_EXTAUDIO));
   while(!fona.setMicVolume(FONA_EXTAUDIO, 10));
@@ -40,11 +38,10 @@ void fona_setup() {
 
 void pause_fona_serial() {
   fonaSS.flush();
-  fonaSS.end();
 }
 
 void resume_fona_serial() {
-  fonaSS.begin(4800);
+  fonaSS.listen();
 }
 
 void fona_shutdown() {
@@ -66,7 +63,7 @@ void get_e_numbers(char number1[], char number2[]) {
   uint16_t statuscode, len, i = 0;
 
   switch_to_fona();
-  fona.HTTP_GET_start(NUMBERS_URL, &statuscode, &len);
+  while(!fona.HTTP_GET_start(NUMBERS_URL, &statuscode, &len));
 
   // Get first number
   char c;
@@ -77,7 +74,6 @@ void get_e_numbers(char number1[], char number2[]) {
     len--;
   } while (c != '\n' && len > 0);
   number1[i - 1] = '\0';
-  
   // Get second number
   i = 0;
   while (len > 0) {
@@ -97,14 +93,11 @@ void post_GPS_data(char data[]) {
   uint16_t statuscode, len;
   switch_to_fona();
   
-  fona.HTTP_POST_start(GPS_DATA_URL, F("text/plain"), (uint8_t *) data, strlen(data), &statuscode, &len);
-  while (len > 0) {
-    while(fona.available()) {
-      char c = fona.read();
-      len--;
-      if(!len) break;
-    }
+  // Clear the read buffer
+  while(fona.available()) {
+    fona.read();
   }
+  fona.HTTP_POST_start(GPS_DATA_URL, F("text/plain"), (uint8_t *) data, strlen(data), &statuscode, &len);
   fona.HTTP_POST_end();
   switch_to_gps();
 }

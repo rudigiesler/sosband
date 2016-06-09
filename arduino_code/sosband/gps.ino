@@ -21,11 +21,10 @@ void gps_shutdown() {
 
 void gps_pause_serial() {
   gpsSS.flush();
-  gpsSS.end();
 }
 
 void gps_resume_serial() {
-  gpsSS.begin(9600);
+  gpsSS.listen();
 }
 
 char * read_gps_char() {
@@ -57,8 +56,16 @@ char is_gps_verb(char command[], const char verb[]) {
 char is_valid_gprmc(char command[]) {
   // Checks that the GPS data valid flag is correct
   char pos = 0;
-  while (command[pos++] != ','); // Message ID
-  while (command[pos++] != ','); // UTC time
+  while (command[pos++] != ',') {
+   if(pos > 10) {
+    return false;
+   }
+  } // Message ID
+  while (command[pos++] != ',') {
+   if (pos > 20) {
+    return false;
+   }
+  } // UTC time
   return command[pos] == 'A';
 }
 

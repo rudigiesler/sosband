@@ -5,8 +5,8 @@
 #include "pins.h"
 #include <avr/sleep.h>
 
-char e_number1[30]; // Primary emergency number
-char e_number2[30]; // Secondary emergency number
+char e_number1[20]; // Primary emergency number
+char e_number2[20]; // Secondary emergency number
 
 uint16_t button_down_time = 0, button_up_time = 0;
 uint8_t last_button_state = HIGH;
@@ -51,7 +51,6 @@ void switch_to_fona() {
 
 void setup() {
   Serial.begin(115200);
-  while(!Serial);
   Serial.println(F("Serial Connected"));
   pinMode(LED, OUTPUT);
   pinMode(BUTTON, INPUT);
@@ -98,7 +97,9 @@ void loop() {
   // Get and send GPS data
   char * gps_data = read_gps_char();
   if(!call_in_progress && gps_data && is_valid_gps_command(gps_data)) {
+    digitalWrite(LED, LOW);
     post_GPS_data(gps_data);
+    digitalWrite(LED, HIGH);
   }
   
   if(reading == HIGH && last_button_state == LOW && duration > DEBOUNCE_TIME) {
