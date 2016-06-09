@@ -1,5 +1,6 @@
 from flask import Flask, request
 from flask.ext.sqlalchemy import SQLAlchemy
+from datetime import datetime
 import os
 import json
 
@@ -119,13 +120,22 @@ def get_gps_points():
         archived = True
     else:
         archived = False
+    starttime = request.args.get('starttime', None)
+    endtime = request.args.get('endtime', None)
     points = (
         db.session.query(GPSPoints)
         .filter(GPSPoints.archived == archived)
         .order_by(GPSPoints.timestamp)
         )
+    if starttime is not None:
+        starttime = datetime.strptime(starttime, '%a, %d %b %Y %H:%M:%S %Z')
+        points = points.filter(GPSPoints.timestamp >= starttime)
+    if endtime is not None:
+        endtime = datetime.strptime(endtime, '%a, %d %b %Y %H:%M:%S %Z')
+        points = points.filter(GPSPoints.timestamp <= endtime)
     points = map(serialize_point, points)
     return json.dumps(points)
+
 
 def create_gps_point():
     data = request.get_json()
