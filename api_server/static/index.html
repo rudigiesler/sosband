@@ -1,0 +1,50 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>SOSBand</title>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <link href="/css/sosband.css" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+</head>
+<body>
+<div class="container">
+  <div class="header clearfix">
+    <nav>
+      <ul class="nav nav-pills pull-right">
+        <li role="presentation"><a href="#">About</a></li>
+      </ul>
+    </nav>
+    <h3 class="text-muted">SOSBand</h3>
+
+    <div ="jumbotron">
+        <form onsubmit="update_number_1()"> 
+            <label for="number1">Primary number: </label>
+            <input type="text" name="number" id="number1">
+            <button type="submit" class="btn btn-primary" name="submit">Update</button>
+        </form>
+        <form onsubmit="update_number_2()">
+            <label for="number1">Secondary number: </label>
+            <input type="text" name="number" id="number2">
+            <button type="submit" class="btn btn-primary" name="submit">Update</button>
+        </form>
+    </div>
+
+  </div>
+    <label for="starttime">Start time: </label>
+    <input type="datetime" id="starttime">
+    <label for="endtime">End time: </label>
+    <input type="datetime" id="endtime">
+    <button type="submit" class="btn btn-primary" name="submit" onclick="update_map();">Update Map</button>
+  <div>
+  </div>
+  <div id="map">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDRRN03J7yedfhsRmsOXLeEiQOsaqdv-7M"></script>
+    <script type="text/javascript" src="/js/sosband.js"></script>
+  </div>
+</div> <!-- /container -->
+</body>
+</html>
