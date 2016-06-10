@@ -19,32 +19,30 @@
       </ul>
     </nav>
     <h3 class="text-muted">SOSBand</h3>
+  </div> <!-- /header -->
 
-    <div ="jumbotron">
-        <form onsubmit="update_number_1()"> 
-            <label for="number1">Primary number: </label>
-            <input type="text" name="number" id="number1">
-            <button type="submit" class="btn btn-primary" name="submit">Update</button>
-        </form>
-        <form onsubmit="update_number_2()">
-            <label for="number1">Secondary number: </label>
-            <input type="text" name="number" id="number2">
-            <button type="submit" class="btn btn-primary" name="submit">Update</button>
-        </form>
-    </div>
+  <div class="jumbotron">
+    <form id="formnumber1"> 
+        <label for="number1">Primary number: </label>
+        <input type="text" name="number" id="number1">
+        <button type="submit" class="btn btn-primary" name="submit">Update</button>
+    </form>
+    <form id="formnumber2">
+        <label for="number2">Secondary number: </label>
+        <input type="text" name="number" id="number2">
+        <button type="submit" class="btn btn-primary" name="submit">Update</button>
+    </form>
+  </div> <!-- /jumbotron -->
 
-  </div>
-    <label for="starttime">Start time: </label>
-    <input type="datetime" id="starttime">
-    <label for="endtime">End time: </label>
-    <input type="datetime" id="endtime">
-    <button type="submit" class="btn btn-primary" name="submit" onclick="update_map();">Update Map</button>
-  <div>
-  </div>
+  <label for="starttime">Start time: </label>
+  <input type="datetime" id="starttime">
+  <label for="endtime">End time: </label>
+  <input type="datetime" id="endtime">
+  <button type="submit" class="btn btn-primary" name="submit" onclick="update_map();">Update Map</button>
   <div id="map">
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDRRN03J7yedfhsRmsOXLeEiQOsaqdv-7M"></script>
     <script type="text/javascript" src="/js/sosband.js"></script>
-  </div>
+  </div> <!-- /map -->
 </div> <!-- /container -->
 </body>
 </html>

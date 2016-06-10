@@ -1,20 +1,27 @@
-function update_number_1() {
+$('#formnumber1').submit(function () {
     var number = $('#number1').val();
-    update_number(0, number);
-}
+    var button = $('#formnumber1 button');
+    update_number(0, number, button);
+    return false;
+});
 
-function update_number_2() {
+$('#formnumber2').submit(function () {
     var number = $('#number2').val();
-    update_number(1, number);
-}
+    var button = $('#formnumber2 button');
+    update_number(1, number, button);
+    return false;
+});
 
-function update_number(priority, number) {
+function update_number(priority, number, button) {
+    button.prop('disabled', true);
     $.ajax({
         data: JSON.stringify({number: number}),
         contentType: "application/json",
         type: "POST",
         url: "/api/priorities/" + priority
-    })
+    }).done(function (data) {
+        button.prop('disabled', false);
+    });
 }
 
 $(document).ready(function () {
