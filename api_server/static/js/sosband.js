@@ -73,6 +73,7 @@ function initMap() {
 }
 
 function update_map() {
+    $('button[name="update_map"]').prop('disabled', true);
     starttime = $('#starttime').val();
     endtime = $('#endtime').val();
     latlngbound = new google.maps.LatLngBounds();
@@ -121,5 +122,6 @@ function update_map() {
         }
         map.setCenter(latlngbound.getCenter());
         map.fitBounds(latlngbound);
+        $('button[name="update_map"]').prop('disabled', false);
     });
 }
