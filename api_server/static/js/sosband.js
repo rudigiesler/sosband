@@ -50,6 +50,24 @@ $(document).ready(function () {
 
 var map;
 var markers = [];
+var red_circle ={
+    path: google.maps.SymbolPath.CIRCLE,
+    fillColor: 'red',
+    fillOpacity: .6,
+    scale: 4.5,
+    strokeColor: 'white',
+    strokeWeight: 1
+};
+var green_circle ={
+    path: google.maps.SymbolPath.CIRCLE,
+    fillColor: 'green',
+    fillOpacity: 1,
+    scale: 4.5,
+    strokeColor: 'white',
+    strokeWeight: 1
+};
+
+
 function initMap() {
     map = new google.maps.Map(document.getElementById("map"));
 }
@@ -74,18 +92,33 @@ function update_map() {
         points = JSON.parse(data);
         for(i in points) {
             var p = points[i];
-            marker = new google.maps.Marker({
+            var marker = new google.maps.Marker({
                 position: {
                     lat: p.latitude,
                     lng: p.longitude
                 },
                 map: map,
                 title: p.timestamp,
+                icon: red_circle,
                 zIndex: p.id
+            });
+            console.log(p);
+            marker.point = p;
+            google.maps.event.addListener(marker, 'click', function () {
+                new google.maps.InfoWindow({
+                    content: [
+                        'latitude:', this.point.latitude, '<br />',
+                        'longitude:', this.point.longitude, '<br />',
+                        'speed:', this.point.speed, '<br />',
+                        'timestamp:', this.point.timestamp, '<br />'].join(' ')
+                }).open(map, this);
             });
             markers.push(marker);
             latlngbound.extend(marker.position);
         };
+        if(markers.length > 0) {
+            markers[markers.length-1].icon = green_circle;
+        }
         map.setCenter(latlngbound.getCenter());
         map.fitBounds(latlngbound);
     });
